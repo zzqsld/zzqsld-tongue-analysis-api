@@ -1,7 +1,16 @@
 # TCM-Tongue Detection · 中医舌象目标检测（训练 + 云端推理）
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Weights: CC BY-NC 4.0](https://img.shields.io/badge/Weights-CC_BY--NC_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![Ultralytics YOLOv8](https://img.shields.io/badge/Ultralytics-YOLOv8s-7BDCB5.svg)](https://github.com/ultralytics/ultralytics)
+[![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-1.18-005CED.svg)](https://onnxruntime.ai/)
+[![Azure App Service](https://img.shields.io/badge/Deployed_on-Azure_App_Service-0078D4.svg?logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/)
+
 基于 YOLOv8s 的中医舌象病理特征检测项目：包含阿里云 PAI-DSW 上的训练复现材料，以及部署在
 Azure App Service 上的云端推理服务代码（Flask + ONNX Runtime，带签名鉴权）。
+
+**[模型权重（Releases）](../../releases)** · **[API 适配文档](docs/API.md)** · **[训练复现指南](training/TRAINING.md)** · **[在线应用演示](https://app-d6sw7q13ow75.appmiaoda.com/)**（基于本服务的完整舌诊产品）
 
 - **检测能力**：舌色（红/紫）、舌形（胖大/瘦薄/齿痕/裂纹/红点）、舌苔（白/黄/黑/滑/剥）
   及心肺、肝胆、脾胃、肾等舌面分区局部凹凸特征，共覆盖论文 20 类病理特征体系
@@ -49,6 +58,22 @@ Azure App Service 上的云端推理服务代码（Flask + ONNX Runtime，带签
 onnxruntime ≥ 1.18。类别表（21 类）见 `training/dataset.yaml`。
 
 权重许可：**CC BY-NC 4.0**（仅科研与非商业用途）。
+
+## 系统架构
+
+```mermaid
+flowchart TD
+    A[客户端<br/>Web / 小程序 / 低代码平台] -->|HTTPS + HMAC-SHA256 签名| B[推理服务<br/>Flask + Gunicorn]
+    B --> C[颜色校正预处理<br/>tongue_preprocess.py<br/>三档增强]
+    C --> D[YOLOv8s ONNX 推理<br/>ONNX Runtime CPU<br/>640×640]
+    D --> E[后处理<br/>NMS + 30% 低置信度过滤]
+    E --> F[舌色 Lab 统计<br/>苔覆盖率量化]
+    E --> G[检测框 + 置信度<br/>21 类舌象特征]
+    F --> H[特征-体质加权评分]
+    G --> H
+    H --> I[JSON 响应<br/>detections + constitution]
+    B -.->|API Key + 时间戳防重放 + 限流| J[auth_utils.py]
+```
 
 ## 与论文基准的对比
 
