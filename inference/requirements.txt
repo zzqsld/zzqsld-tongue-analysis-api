@@ -1,0 +1,7 @@
+# rebuild 2026-08-28: v7 模型部署（触发 Oryx 重装依赖，避免缓存跳过 pip install）
+flask==3.0.3
+flask-cors==4.0.1
+numpy==1.26.4
+Pillow==10.4.0
+onnxruntime==1.18.1
+gunicorn==22.0.0

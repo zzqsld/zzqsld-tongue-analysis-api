@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+antenv/
+
+# 权重与数据集（通过 Releases 分发 / 自行下载）
+*.pt
+*.onnx
+*.rknn
+shezhenv3-coco/
+models/
+
+# 部署产物
+publish/
+publish.zip
+sample_results/
+
+# 系统
+.DS_Store
+Thumbs.db

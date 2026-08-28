@@ -1,0 +1,30 @@
+# TMC-Tongue 数据集配置（21 类，与发布版 classes.txt 一致）
+# 数据集获取方式见 README.md「数据集来源」；解压后把 path 改为你的实际路径
+path: ./shezhenv3-coco
+train: train/images
+val: val/images
+test: test/images
+
+nc: 21
+names:
+  0: jiankangshe    # 健康舌
+  1: botaishe       # 剥苔
+  2: hongshe        # 红舌
+  3: zishe          # 紫舌
+  4: pangdashe      # 胖大舌
+  5: shoushe        # 瘦舌
+  6: hongdianshe    # 红点舌
+  7: liewenshe      # 裂纹舌
+  8: chihenshe      # 齿痕舌
+  9: baitaishe      # 白苔
+  10: huangtaishe   # 黄苔
+  11: heitaishe     # 黑苔
+  12: huataishe     # 滑苔
+  13: shenquao      # 肾区凹
+  14: shenqutu      # 肾区凸（全数据集仅 1 例）
+  15: gandanao      # 肝胆区凹
+  16: gandantu      # 肝胆区凸（全数据集仅 1 例）
+  17: piweiao       # 脾胃区凹
+  18: piweitu       # 脾胃区凸（空类，发布版无标注实例）
+  19: xinfeiao      # 心肺区凹
+  20: xinfeitu      # 心肺区凸（空类，发布版无标注实例）
