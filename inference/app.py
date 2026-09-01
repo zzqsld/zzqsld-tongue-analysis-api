@@ -65,11 +65,13 @@ except Exception:
     COLOR_PREPROCESS_READY = False
 
 
+# 19 类（修复版数据集 /mnt/workspace/v8data/shezhenv3-coco，benchmark yolo12s 模型）
+# 相比旧 21 类：移除了空类 脾胃凸 / 心肺凸；修正命名 botaishe=剥苔（非薄白苔）、huataishe=滑苔（非花苔舌）
 FEATURE_NAMES: List[str] = [
-    "健康舌", "薄白苔", "红舌", "紫舌", "胖大舌", "瘦舌",
+    "健康舌", "剥苔", "红舌", "紫舌", "胖大舌", "瘦舌",
     "红点舌", "裂纹舌", "齿痕舌", "白苔舌", "黄苔舌", "黑苔舌",
-    "花苔舌", "肾区凹", "肾区凸", "肝胆凹", "肝胆凸",
-    "脾胃凹", "脾胃凸", "心肺凹", "心肺凸",
+    "滑苔", "肾区凹", "肾区凸", "肝胆凹", "肝胆凸",
+    "脾胃凹", "心肺凹",
 ]
 
 CONSTITUTIONS: List[str] = [
@@ -96,9 +98,7 @@ TONGUE_FEATURE_MAP: Dict[int, Dict[str, Dict[str, float]]] = {
     15: {"weights": {"气虚质": 0.40, "阴虚质": 0.30, "阳虚质": 0.30}},
     16: {"weights": {"气郁质": 0.45, "湿热质": 0.30, "血瘀质": 0.25}},
     17: {"weights": {"气虚质": 0.50, "阳虚质": 0.30, "阴虚质": 0.20}},
-    18: {"weights": {"痰湿质": 0.45, "湿热质": 0.35, "气虚质": 0.20}},
-    19: {"weights": {"气虚质": 0.45, "阳虚质": 0.35, "阴虚质": 0.20}},
-    20: {"weights": {"湿热质": 0.35, "气郁质": 0.30, "血瘀质": 0.20, "阴虚质": 0.15}},
+    18: {"weights": {"气虚质": 0.45, "阳虚质": 0.35, "阴虚质": 0.20}},
 }
 
 
@@ -173,7 +173,12 @@ def build_session(model_path: str) -> Any:
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"模型不存在: {model_path}")
     providers = ["CPUExecutionProvider"]
-    return ort.InferenceSession(model_path, providers=providers)
+    # 推理性能优化：开启全部图优化；线程数默认用满可用核（B1 单核也无副作用）
+    sess_opts = ort.SessionOptions()
+    sess_opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+    sess_opts.enable_mem_pattern = True
+    sess_opts.enable_cpu_mem_arena = True
+    return ort.InferenceSession(model_path, providers=providers, sess_options=sess_opts)
 
 
 MODEL_LOAD_ERROR = None
@@ -603,6 +608,12 @@ def predict_base64():
         return jsonify({"error": "Empty image bytes"}), 400
 
     return _do_predict(image_bytes, color_level)
+
+
+# 启动预载模型：gunicorn worker 启动时就完成加载与图优化，
+# 避免第一个请求承担数十 MB 模型加载的冷启动开销（可用 PRELOAD_MODEL=false 关闭）
+if os.getenv("PRELOAD_MODEL", "true").strip().lower() in {"1", "true", "yes", "on"}:
+    ensure_session()
 
 
 if __name__ == "__main__":

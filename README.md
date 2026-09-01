@@ -7,14 +7,18 @@
 [![ONNX Runtime](https://img.shields.io/badge/ONNX_Runtime-1.18-005CED.svg)](https://onnxruntime.ai/)
 [![Azure App Service](https://img.shields.io/badge/Deployed_on-Azure_App_Service-0078D4.svg?logo=microsoftazure&logoColor=white)](https://azure.microsoft.com/)
 
-基于 YOLOv8s 的中医舌象病理特征检测项目：包含阿里云 PAI-DSW 上的训练复现材料，以及部署在
-Azure App Service 上的云端推理服务代码（Flask + ONNX Runtime，带签名鉴权）。
+基于自训练 YOLO 系列的中医舌象病理特征检测项目：包含阿里云 PAI-DSW 上的训练与
+**论文 12 个基准模型全量复现材料**，以及部署在 Azure App Service 上的云端推理服务代码
+（Flask + ONNX Runtime，带签名鉴权）。
 
-**[模型权重（Releases）](../../releases)** · **[API 适配文档](docs/API.md)** · **[训练复现指南](training/TRAINING.md)** · **[在线应用演示](https://app-d6sw7q13ow75.appmiaoda.com/)**（基于本服务的完整舌诊产品）
+**[模型权重（Releases）](../../releases)** · **[API 适配文档](docs/API.md)** · **[训练复现指南](training/TRAINING.md)** · **[12 模型全量复现报告](training/REPRODUCTION.md)** · **[在线应用演示](https://app-d6sw7q13ow75.appmiaoda.com/)**（基于本服务的完整舌诊产品）
 
 - **检测能力**：舌色（红/紫）、舌形（胖大/瘦薄/齿痕/裂纹/红点）、舌苔（白/黄/黑/滑/剥）
-  及心肺、肝胆、脾胃、肾等舌面分区局部凹凸特征，共覆盖论文 20 类病理特征体系
+  及心肺、肝胆、脾胃、肾等舌面分区局部凹凸特征，19 类修复版标签体系
 - **最终模型（v7）**：test 集 mAP@0.5 = **40.74%**，超过原论文全部 12 个基准模型
+- **全量复现（2026-08）**：同一数据与口径下复现论文全部 12 个基准模型，
+  **10 个 YOLO 模型全部超过论文原值**（平均 +4.91pp，最大 +9.37pp），复现最优
+  YOLOv7-tiny mAP@0.5 = 41.30%（仅 6M 参数）；线上服务已切换至 YOLO12s（40.88%）
 - **推理服务**：ONNX Runtime CPU 推理、颜色校正预处理、低置信度过滤、舌色 Lab 统计、
   苔覆盖率量化、API Key + HMAC-SHA256 签名防刷
 
@@ -32,11 +36,12 @@ Azure App Service 上的云端推理服务代码（Flask + ONNX Runtime，带签
 │   ├── example_client.py #   调用示例（密钥走环境变量）
 │   ├── requirements.txt
 │   └── deploy_azure.ps1  #   一键部署到 Azure
-├── training/             # 训练复现材料
+├── training/             # 训练与复现材料
 │   ├── train.py          #   v7 训练脚本（YOLOv8s 复现入口）
 │   ├── args_v7.yaml      #   v7 完整超参数（Ultralytics 训练自动生成）
 │   ├── dataset.yaml      #   数据集配置（21 类名，含空类注释）
-│   └── TRAINING.md       #   训练方法、版本演进、指标
+│   ├── TRAINING.md       #   训练方法、版本演进、指标
+│   └── REPRODUCTION.md   #   论文 12 个基准模型全量复现报告（2026-08）
 ├── tools/
 │   ├── fix_dataset_v8.py             # 数据集标签审计修复（19 类连续标签实验版）
 │   └── package_training_evidence.py  # 多版本训练证据打包与指标汇总
@@ -48,6 +53,14 @@ Azure App Service 上的云端推理服务代码（Flask + ONNX Runtime，带签
 ## 模型权重
 
 权重通过 **GitHub Releases** 分发（见右侧 Releases 页面）：
+
+**v2.0（2026-09，复现权重包）**
+
+| 文件 | 说明 |
+|---|---|
+| `reproduction_weights_12models_v2.zip`（约 620 MB） | 论文 12 个基准模型的同口径复现权重（每模型 `best.pt`）+ 三份成绩 CSV，训练配置与结果见 `training/REPRODUCTION.md` |
+
+**v1.0（2026-08，最终模型）**
 
 | 文件 | 说明 | 配置 |
 |---|---|---|
@@ -65,10 +78,10 @@ onnxruntime ≥ 1.18。类别表（21 类）见 `training/dataset.yaml`。
 flowchart TD
     A[客户端<br/>Web / 小程序 / 低代码平台] -->|HTTPS + HMAC-SHA256 签名| B[推理服务<br/>Flask + Gunicorn]
     B --> C[颜色校正预处理<br/>tongue_preprocess.py<br/>三档增强]
-    C --> D[YOLOv8s ONNX 推理<br/>ONNX Runtime CPU<br/>640×640]
+    C --> D[YOLO12s ONNX 推理<br/>ONNX Runtime CPU<br/>640×640]
     D --> E[后处理<br/>NMS + 30% 低置信度过滤]
     E --> F[舌色 Lab 统计<br/>苔覆盖率量化]
-    E --> G[检测框 + 置信度<br/>21 类舌象特征]
+    E --> G[检测框 + 置信度<br/>19 类舌象特征]
     F --> H[特征-体质加权评分]
     G --> H
     H --> I[JSON 响应<br/>detections + constitution]
@@ -89,6 +102,17 @@ flowchart TD
 
 mAP@0.5 超论文同型号基准 **+7.20** 个百分点，超论文全部 12 个模型的最高值 **+5.42**
 个百分点。逐类别 AP、8 个版本的迭代过程与训练配置差异归因见 `training/TRAINING.md`。
+
+### 12 个基准模型全量同口径复现（2026-08-30/31）
+
+与论文作者书面确认其原始训练参数已丢失、无法自复现后，我们在同一数据（19 类修复版）、
+同一评估口径下复现了论文全部 12 个基准模型：
+
+![论文基准 vs 同口径复现](docs/benchmark_comparison.png)
+
+**10 个 YOLO 复现模型 mAP@0.5 全部超过论文原值**（平均 +4.91pp，最大 +9.37pp）。
+完整数据表、训练配置、口径差异说明与结论见 **[training/REPRODUCTION.md](training/REPRODUCTION.md)**；
+12 个复现模型的权重见 Releases v2.0。
 
 ## 数据来源
 

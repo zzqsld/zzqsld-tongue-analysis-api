@@ -1,4 +1,37 @@
-## v7 模型权重（YOLOv8s · 21 类 · test mAP@0.5 40.74%）
+## v2.0 复现权重包（12 模型 · 论文基准同口径复现 · 2026-09-01）
+
+**附件 `reproduction_weights_12models_v2.zip`（622 MB）**，
+SHA256：`0b52f6f1c11f43ac11aefdf1afbc2a2731db0d3c54ce29799df29d9463a26c92`
+
+包含 TCM-Tongue 论文（Gao & Jin, 2026）Table 2 全部 12 个基准模型的同口径复现权重
+与成绩表：
+
+```
+reproduction_weights/
+├── yolov5s/best.pt    ├── yolov5m/best.pt    ├── yolov5l/best.pt
+├── yolov8s/best.pt    ├── yolov8m/best.pt    ├── yolov8l/best.pt
+├── yolo11s/best.pt    ├── yolo12s/best.pt
+├── yolov7-tiny/best.pt  ├── yolov7/best.pt        # WongKinYiu 官方仓库训练
+├── ssd300_vgg16/best.pt  ├── ssdlite320_mobilenet_v3_large/best.pt   # torchvision 实现
+├── benchmark_results.csv        # YOLO 8 模型成绩
+├── benchmark_results_v7.csv     # YOLOv7 系成绩
+└── benchmark_results_ssd.csv    # SSD 系成绩
+```
+
+要点（详见仓库 `training/REPRODUCTION.md`）：
+
+- 10 个 YOLO 复现模型 mAP@0.5 全部超过论文原值，平均 +4.91pp，最大 +9.37pp（YOLOv7-tiny 41.30%）
+- 复现最优：YOLOv7-tiny（mAP@0.5 41.30%，仅 6M 参数）；YOLOv7 精确率 53.7% 全场最高
+- 全部模型：19 类修复版标签，输入 640×640，test 集 553 张 COCO 协议评估
+- 训练平台：阿里云 PAI-DSW，NVIDIA A10，PyTorch 2.10.0+cu128，Ultralytics 8.4.51
+- YOLOv7 系加载需 WongKinYiu/yolov7 仓库（注意 torch≥2.6 需 `weights_only=False`）；
+  SSD 系为 torchvision 模型格式（state_dict 含完整模型）
+
+许可：CC BY-NC 4.0（仅科研与非商业用途）
+
+---
+
+## v1.0 模型权重（YOLOv8s · 21 类 · test mAP@0.5 40.74%）
 
 **附件 `tcm-tongue-detection-weights-v7.zip`（56 MB）包含：**
 
