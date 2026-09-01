@@ -1,31 +1,47 @@
 ## v2.0 复现权重包（12 模型 · 论文基准同口径复现 · 2026-09-01）
 
-**附件 `reproduction_weights_12models_v2.zip`（622 MB）**，
-SHA256：`0b52f6f1c11f43ac11aefdf1afbc2a2731db0d3c54ce29799df29d9463a26c92`
+TCM-Tongue 论文（Gao & Jin, 2026）Table 2 全部 12 个基准模型的同口径复现权重与成绩表。
+每个模型一个独立 zip（内含 `<模型名>/best.pt`），可按需单独下载；另附全量合集包与成绩 CSV。
 
-包含 TCM-Tongue 论文（Gao & Jin, 2026）Table 2 全部 12 个基准模型的同口径复现权重
-与成绩表：
+**YOLO 系（Ultralytics 格式，Ultralytics ≥ 8.4 直接加载）**
 
-```
-reproduction_weights/
-├── yolov5s/best.pt    ├── yolov5m/best.pt    ├── yolov5l/best.pt
-├── yolov8s/best.pt    ├── yolov8m/best.pt    ├── yolov8l/best.pt
-├── yolo11s/best.pt    ├── yolo12s/best.pt
-├── yolov7-tiny/best.pt  ├── yolov7/best.pt        # WongKinYiu 官方仓库训练
-├── ssd300_vgg16/best.pt  ├── ssdlite320_mobilenet_v3_large/best.pt   # torchvision 实现
-├── benchmark_results.csv        # YOLO 8 模型成绩
-├── benchmark_results_v7.csv     # YOLOv7 系成绩
-└── benchmark_results_ssd.csv    # SSD 系成绩
-```
+| 附件 | 大小 | test mAP@0.5（论文原值） | SHA256 |
+|---|---|---|---|
+| `yolov7-tiny_best_v2.zip` | 10 MB | 41.30%（31.93%） | `4d955003…e707c` |
+| `yolov7_best_v2.zip` | 66 MB | 41.00%（34.82%） | `2a2d2047…f65a` |
+| `yolo12s_best_v2.zip` | 16 MB | 40.88%（35.23%） | `b13526d8…931f` |
+| `yolov5l_best_v2.zip` | 94 MB | 40.00%（34.57%） | `c44c8669…7e47` |
+| `yolov5m_best_v2.zip` | 44 MB | 39.60%（32.48%） | `9e632f33…1513` |
+| `yolov8l_best_v2.zip` | 77 MB | 39.23%（34.95%） | `9db43673…a3e9` |
+| `yolov8m_best_v2.zip` | 45 MB | 38.74%（34.77%） | `65f8333b…f745` |
+| `yolov8s_best_v2.zip` | 19 MB | 36.75%（33.54%） | `33ed5b2c…4a85` |
+| `yolo11s_best_v2.zip` | 16 MB | 36.54%（35.32%） | `e812429e…ce31` |
+| `yolov5s_best_v2.zip` | 16 MB | 34.50%（31.83%） | `2b3abaff…4464` |
+
+> 注：yolov7 / yolov7-tiny 为 WongKinYiu 官方仓库格式（非 Ultralytics），
+> 加载需该仓库代码，且 torch≥2.6 需 `torch.load(..., weights_only=False)`。
+
+**SSD 系（torchvision 格式，state_dict 含完整模型）**
+
+| 附件 | 大小 | test mAP@0.5（论文原值） | SHA256 |
+|---|---|---|---|
+| `ssd300_vgg16_best_v2.zip` | 185 MB | 24.70%（28.86%） | `5f9b2ce5…0557` |
+| `ssdlite320_mobilenet_v3_large_best_v2.zip` | 28 MB | 23.35%（23.20%） | `58d29394…fd6f` |
+
+**成绩表与合集**
+
+| 附件 | 说明 | SHA256 |
+|---|---|---|
+| `benchmark_results.csv` | YOLO 8 模型成绩（P/R/mAP/耗时） | `9085ba56…35e8` |
+| `benchmark_results_v7.csv` | YOLOv7 系成绩 | `bfc71fe6…f947` |
+| `benchmark_results_ssd.csv` | SSD 系成绩 | `ddaad3cd…034e` |
+| `reproduction_weights_12models_v2.zip` | 全量合集（622 MB，12 权重 + 3 CSV） | `0b52f6f1…26c92` |
 
 要点（详见仓库 `training/REPRODUCTION.md`）：
 
-- 10 个 YOLO 复现模型 mAP@0.5 全部超过论文原值，平均 +4.91pp，最大 +9.37pp（YOLOv7-tiny 41.30%）
-- 复现最优：YOLOv7-tiny（mAP@0.5 41.30%，仅 6M 参数）；YOLOv7 精确率 53.7% 全场最高
+- 10 个 YOLO 复现模型 mAP@0.5 全部超过论文原值，平均 +4.91pp，最大 +9.37pp（YOLOv7-tiny）
 - 全部模型：19 类修复版标签，输入 640×640，test 集 553 张 COCO 协议评估
 - 训练平台：阿里云 PAI-DSW，NVIDIA A10，PyTorch 2.10.0+cu128，Ultralytics 8.4.51
-- YOLOv7 系加载需 WongKinYiu/yolov7 仓库（注意 torch≥2.6 需 `weights_only=False`）；
-  SSD 系为 torchvision 模型格式（state_dict 含完整模型）
 
 许可：CC BY-NC 4.0（仅科研与非商业用途）
 

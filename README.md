@@ -58,7 +58,11 @@
 
 | 文件 | 说明 |
 |---|---|
-| `reproduction_weights_12models_v2.zip`（约 620 MB） | 论文 12 个基准模型的同口径复现权重（每模型 `best.pt`）+ 三份成绩 CSV，训练配置与结果见 `training/REPRODUCTION.md` |
+| `<模型名>_best_v2.zip` × 12 | 论文 12 个基准模型的同口径复现权重，每模型一个独立包，可按需单独下载 |
+| `benchmark_results*.csv` × 3 | 复现成绩表（P/R/mAP/训练耗时） |
+| `reproduction_weights_12models_v2.zip`（622 MB） | 全量合集包（12 权重 + 3 CSV） |
+
+训练配置与完整结果见 `training/REPRODUCTION.md`，各附件 SHA256 校验值见 `release/RELEASE_NOTES.md`。
 
 **v1.0（2026-08，最终模型）**
 
